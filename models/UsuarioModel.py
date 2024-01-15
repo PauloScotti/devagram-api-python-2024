@@ -1,4 +1,8 @@
+from fastapi import Form, UploadFile
 from pydantic import BaseModel, Field, EmailStr
+from utils.DecoratorUtil import DecoratorUtil
+
+decoratorUtil = DecoratorUtil()
 
 
 class UsuarioModel(BaseModel):
@@ -6,7 +10,7 @@ class UsuarioModel(BaseModel):
     nome: str = Field(...)
     email: EmailStr = Field(...)
     senha: str = Field(...)
-    avatar: str = Field(...)
+    foto: str = Field(...)
 
     class Config:
         json_schema_extra = {
@@ -14,24 +18,23 @@ class UsuarioModel(BaseModel):
                 "nome": "Fulano de tal",
                 "email": "fulano@gmail.com",
                 "senha": "Senha@123",
-                "avatar": "fulano.png"
+                "foto": "fulano.png"
             }
         }
 
 
+@decoratorUtil.form_body
 class UsuarioCriarModel(BaseModel):
     nome: str = Field(...)
     email: EmailStr = Field(...)
     senha: str = Field(...)
-    avatar: str = Field(...)
 
     class Config:
         json_schema_extra = {
             "usuario": {
                 "nome": "Fulano de tal",
                 "email": "fulano@gmail.com",
-                "senha": "Senha@123",
-                "avatar": "fulano.png"
+                "senha": "Senha@123"
             }
         }
 
@@ -45,5 +48,23 @@ class UsuarioLoginModel(BaseModel):
             "usuario": {
                 "email": "fulano@gmail.com",
                 "senha": "Senha@123"
+            }
+        }
+
+
+@decoratorUtil.form_body
+class UsuarioAtualizarModel(BaseModel):
+    nome: str = Field(...)
+    email: EmailStr = Field(...)
+    senha: str = Field(...),
+    foto: UploadFile = Field(...)
+
+    class Config:
+        json_schema_extra = {
+            "usuario": {
+                "nome": "Fulano de tal",
+                "email": "fulano@gmail.com",
+                "senha": "Senha@123",
+                "foto": "fulano.png"
             }
         }

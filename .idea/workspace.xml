@@ -5,22 +5,26 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="283054eb-fbf5-4722-8be1-f41fac41738c" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.env" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/devagram-api-python-2024.iml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/Project_Default.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/inspectionProfiles/profiles_settings.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/modules.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/vcs.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/models/UsuarioModel.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/repositories/UsuarioRepository.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/routes/AutenticacaoRoute.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/routes/UsuarioRoute.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/services/AuthService.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/services/UsuarioService.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/utils/AuthUtil.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/middlewares/JWTMiddleware.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/models/ComentarioModel.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/models/PostagemModel.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/providers/AWSProvider.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/repositories/PostagemRepository.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/routes/PostagemRoute.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/services/PostagemService.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/utils/ConverterUtil.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/utils/DecoratorUtil.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.env" beforeDir="false" afterPath="$PROJECT_DIR$/.env" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Main.py" beforeDir="false" afterPath="$PROJECT_DIR$/Main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/models/UsuarioModel.py" beforeDir="false" afterPath="$PROJECT_DIR$/models/UsuarioModel.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/repositories/UsuarioRepository.py" beforeDir="false" afterPath="$PROJECT_DIR$/repositories/UsuarioRepository.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/requirements.txt" beforeDir="false" afterPath="$PROJECT_DIR$/requirements.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/routes/AutenticacaoRoute.py" beforeDir="false" afterPath="$PROJECT_DIR$/routes/AutenticacaoRoute.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/routes/UsuarioRoute.py" beforeDir="false" afterPath="$PROJECT_DIR$/routes/UsuarioRoute.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/services/AuthService.py" beforeDir="false" afterPath="$PROJECT_DIR$/services/AuthService.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/services/UsuarioService.py" beforeDir="false" afterPath="$PROJECT_DIR$/services/UsuarioService.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -55,11 +59,15 @@
     &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
     &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
     &quot;git-widget-placeholder&quot;: &quot;master&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/paulo/projetos_devaria/devagram-api-python&quot;,
+    &quot;last_opened_file_path&quot;: &quot;C:/Users/paulo/djangoteste&quot;,
     &quot;settings.editor.selected.configurable&quot;: &quot;project.scopes&quot;
   }
 }</component>
   <component name="RecentsManager">
+    <key name="CopyFile.RECENT_KEYS">
+      <recent name="C:\Users\paulo\projetos_devaria\devagram-api-python-2024\services" />
+      <recent name="C:\Users\paulo\projetos_devaria\devagram-api-python-2024\routes" />
+    </key>
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\paulo\projetos_devaria\devagram-api-python-2024" />
     </key>
@@ -110,8 +118,9 @@
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
-        <line-breakpoint enabled="true" suspend="THREAD" type="python-line">
-          <url>file://$PROJECT_DIR$/services/UsuarioService.py</url>
+        <line-breakpoint enabled="true" log-message="true" suspend="NONE" type="python-line">
+          <url>file://$PROJECT_DIR$/models/PostagemModel.py</url>
+          <line>8</line>
           <option name="timeStamp" value="1" />
         </line-breakpoint>
       </breakpoints>

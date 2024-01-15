@@ -4,60 +4,58 @@ import jwt
 from decouple import config
 
 from models.UsuarioModel import UsuarioLoginModel
-from repositories.UsuarioRepository import buscar_usuario_por_email
+from repositories.UsuarioRepository import UsuarioRepository
 from utils.AuthUtil import verificar_senha
 
 JWT_SECRET = config('JWT_SECRET')
+usuarioRepository = UsuarioRepository()
 
 
-def gerar_token_jwt(usuario_id: str) -> str:
-    payload = {
-        "usuario_id": usuario_id,
-        "tempo_expiracao": time.time() + 600
-    }
+class AuthService:
 
-    token = jwt.encode(payload, JWT_SECRET, algorithm="HS256")
+    def gerar_token_jwt(self, usuario_id: str) -> str:
+        payload = {
+            "usuario_id": usuario_id,
+            "tempo_expiracao": time.time() + 6000
+        }
 
-    return token
+        token = jwt.encode(payload, JWT_SECRET, algorithm="HS256")
 
-def decodificar_token_jwt(token: str):
-    try:
-        token_decodificado = jwt.encode(token, JWT_SECRET, algorithm="HS256")
+        return token
 
-        if token_decodificado['tempo_expiracao'] >= time.time():
-            return token_decodificado
-        else:
+    def decodificar_token_jwt(self, token: str):
+        try:
+            token_decodificado = jwt.decode(token, JWT_SECRET, algorithms=["HS256"])
+
+            if token_decodificado["tempo_expiracao"] >= time.time():
+                return token_decodificado
+            else:
+                return None
+
+        except Exception as error:
+            print(error)
             return None
 
-    except Exception as error:
-        print(error)
-        return {
-            "mensagem": "Erro interno no servidor",
-            "dados": str(error),
-            "status": 500
-        }
+    async def login_service(self, usuario: UsuarioLoginModel):
+        usuario_encontrado = await usuarioRepository.buscar_usuario_por_email(usuario.email)
 
-
-async def login_service(usuario: UsuarioLoginModel):
-    usuario_encontrado = await buscar_usuario_por_email(usuario.email)
-
-    if not usuario_encontrado:
-        return {
-            "mensagem": "Email ou Senha incorretos",
-            "dados": "",
-            "status": 401
-        }
-    else:
-        if verificar_senha(usuario.senha, usuario_encontrado['senha']):
-            return {
-                "mensagem": "Login realizado com sucesso!",
-                "dados": usuario_encontrado,
-                "status": 200
-            }
-        else:
+        if not usuario_encontrado:
             return {
                 "mensagem": "Email ou Senha incorretos",
                 "dados": "",
                 "status": 401
             }
+        else:
+            if verificar_senha(usuario.senha, usuario_encontrado["senha"]):
+                return {
+                    "mensagem": "Login realizado com sucesso!",
+                    "dados": usuario_encontrado,
+                    "status": 200
+                }
+            else:
+                return {
+                    "mensagem": "Email ou Senha incorretos",
+                    "dados": "",
+                    "status": 401
+                }
 

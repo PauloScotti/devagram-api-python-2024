@@ -3,12 +3,19 @@ import time
 import jwt
 from decouple import config
 
-from models.UsuarioModel import UsuarioLoginModel
+from dtos.ResponseDTO import ResponseDTO
+from models.UsuarioModel import UsuarioLoginModel, UsuarioModel
 from repositories.UsuarioRepository import UsuarioRepository
-from utils.AuthUtil import verificar_senha
+from services.UsuarioService import UsuarioService
+from utils.AuthUtil import AuthUtil
 
 JWT_SECRET = config('JWT_SECRET')
+
 usuarioRepository = UsuarioRepository()
+
+authUtil = AuthUtil()
+
+usuarioService = UsuarioService()
 
 
 class AuthService:
@@ -31,31 +38,28 @@ class AuthService:
                 return token_decodificado
             else:
                 return None
-
-        except Exception as error:
-            print(error)
+        except Exception as erro:
+            print(erro)
             return None
 
     async def login_service(self, usuario: UsuarioLoginModel):
         usuario_encontrado = await usuarioRepository.buscar_usuario_por_email(usuario.email)
 
         if not usuario_encontrado:
-            return {
-                "mensagem": "Email ou Senha incorretos",
-                "dados": "",
-                "status": 401
-            }
+            return ResponseDTO("E-mail ou Senha incorretos.", "", 401)
         else:
-            if verificar_senha(usuario.senha, usuario_encontrado["senha"]):
-                return {
-                    "mensagem": "Login realizado com sucesso!",
-                    "dados": usuario_encontrado,
-                    "status": 200
-                }
+            if authUtil.verificar_senha(usuario.senha, usuario_encontrado.senha):
+                return ResponseDTO("Login realizado com sucesso!", usuario_encontrado, 200)
             else:
-                return {
-                    "mensagem": "Email ou Senha incorretos",
-                    "dados": "",
-                    "status": 401
-                }
+                return ResponseDTO("E-mail ou Senha incorretos.", "", 401)
 
+    async def buscar_usuario_logado(self, authorization: str) -> UsuarioModel:
+        token = authorization.split(' ')[1]
+        payload = self.decodificar_token_jwt(token)
+
+        resultado_usuario = await usuarioService.buscar_usuario(payload["usuario_id"])
+
+
+        usuario_logado = resultado_usuario.dados
+
+        return usuario_logado

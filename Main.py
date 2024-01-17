@@ -1,10 +1,22 @@
 from fastapi import FastAPI
-
 from routes.PostagemRoute import router as PostagemRoute
 from routes.UsuarioRoute import router as UsuarioRoute
 from routes.AutenticacaoRoute import router as AutenticacaoRoute
+from fastapi.middleware.cors import CORSMiddleware
+
+origins = [
+    "*",
+]
 
 app = FastAPI()
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 app.include_router(UsuarioRoute, tags=["Usuário"], prefix="/api/usuario")
 app.include_router(AutenticacaoRoute, tags=["Autenticação"], prefix="/api/auth")

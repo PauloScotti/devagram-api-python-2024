@@ -1,41 +1,44 @@
-from typing import List
-
 from fastapi import UploadFile
 from pydantic import BaseModel, Field
-
-from models.UsuarioModel import UsuarioModel
+from typing import List, Optional
 from utils.DecoratorUtil import DecoratorUtil
+from models.UsuarioModel import UsuarioModel
 
 decoratorUtil = DecoratorUtil()
 
 
 class PostagemModel(BaseModel):
-    id: str = Field(...),
-    usuario: UsuarioModel = Field(...),
-    foto: str = Field(...),
-    legenda: str = Field(...),
-    data: str = Field(...),
-    curtidas: int = Field(...),
-    comentarios: List = Field(...)
+    id: str = Field(...)
+    usuario_id: str = Field(...)
+    foto: str = Field(...)
+    legenda: str = Field(...)
+    data: str
+    curtidas: List
+    comentarios: List
+    usuario: Optional[UsuarioModel]
+    total_curtidas: int
+    total_comentarios: int
+
+    def __getitem__(self, item):
+        return getattr(self, item)
 
     class Config:
         json_schema_extra = {
             "postagem": {
                 "id": "string",
-                "usuario": "UsuarioModel",
                 "foto": "string",
                 "legenda": "string",
                 "data": "date",
-                "curtidas": "string",
-                "comentarios": "List[comentarios]",
+                "curtidas": "int",
+                "comentarios": "List[comentarios]"
             }
         }
 
 
 @decoratorUtil.form_body
 class PostagemCriarModel(BaseModel):
-    foto: UploadFile = Field(...),
-    legenda: str = Field(...),
+    foto: UploadFile = Field(...)
+    legenda: str = Field(...)
 
     class Config:
         json_schema_extra = {

@@ -5,10 +5,24 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="283054eb-fbf5-4722-8be1-f41fac41738c" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/.env.example" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/.gitattributes" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/dtos/ResponseDTO.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Main.py" beforeDir="false" afterPath="$PROJECT_DIR$/Main.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/middlewares/JWTMiddleware.py" beforeDir="false" afterPath="$PROJECT_DIR$/middlewares/JWTMiddleware.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/models/ComentarioModel.py" beforeDir="false" afterPath="$PROJECT_DIR$/models/ComentarioModel.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/models/PostagemModel.py" beforeDir="false" afterPath="$PROJECT_DIR$/models/PostagemModel.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/models/UsuarioModel.py" beforeDir="false" afterPath="$PROJECT_DIR$/models/UsuarioModel.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/repositories/PostagemRepository.py" beforeDir="false" afterPath="$PROJECT_DIR$/repositories/PostagemRepository.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/repositories/UsuarioRepository.py" beforeDir="false" afterPath="$PROJECT_DIR$/repositories/UsuarioRepository.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/routes/AutenticacaoRoute.py" beforeDir="false" afterPath="$PROJECT_DIR$/routes/AutenticacaoRoute.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/routes/PostagemRoute.py" beforeDir="false" afterPath="$PROJECT_DIR$/routes/PostagemRoute.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/routes/UsuarioRoute.py" beforeDir="false" afterPath="$PROJECT_DIR$/routes/UsuarioRoute.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/services/AuthService.py" beforeDir="false" afterPath="$PROJECT_DIR$/services/AuthService.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/services/PostagemService.py" beforeDir="false" afterPath="$PROJECT_DIR$/services/PostagemService.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/services/UsuarioService.py" beforeDir="false" afterPath="$PROJECT_DIR$/services/UsuarioService.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/AuthUtil.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/AuthUtil.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/ConverterUtil.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/ConverterUtil.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/utils/DecoratorUtil.py" beforeDir="false" afterPath="$PROJECT_DIR$/utils/DecoratorUtil.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -37,16 +51,16 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent">{
-  &quot;keyToString&quot;: {
-    &quot;Python.Server.executor&quot;: &quot;Run&quot;,
-    &quot;RunOnceActivity.OpenProjectViewOnStart&quot;: &quot;true&quot;,
-    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
-    &quot;git-widget-placeholder&quot;: &quot;master&quot;,
-    &quot;last_opened_file_path&quot;: &quot;C:/Users/paulo/djangoteste&quot;,
-    &quot;settings.editor.selected.configurable&quot;: &quot;project.scopes&quot;
+  <component name="PropertiesComponent"><![CDATA[{
+  "keyToString": {
+    "Python.Server.executor": "Run",
+    "RunOnceActivity.OpenProjectViewOnStart": "true",
+    "RunOnceActivity.ShowReadmeOnStart": "true",
+    "git-widget-placeholder": "master",
+    "last_opened_file_path": "C:/Users/paulo/djangoteste",
+    "settings.editor.selected.configurable": "project.scopes"
   }
-}</component>
+}]]></component>
   <component name="RecentsManager">
     <key name="CopyFile.RECENT_KEYS">
       <recent name="C:\Users\paulo\projetos_devaria\devagram-api-python-2024\services" />
@@ -99,15 +113,14 @@
     </task>
     <servers />
   </component>
+  <component name="UnknownFeatures">
+    <option featureType="com.intellij.fileTypeFactory" implementationName=".env" />
+  </component>
   <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" log-message="true" suspend="NONE" type="python-line">
-          <url>file://$PROJECT_DIR$/models/PostagemModel.py</url>
-          <line>8</line>
-          <option name="timeStamp" value="1" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
+    <watches-manager>
+      <inline-watch fileUrl="file://$PROJECT_DIR$/services/UsuarioService.py" line="144">
+        <watch expression="erro" language="Python" />
+      </inline-watch>
+    </watches-manager>
   </component>
 </project>

@@ -1,121 +1,101 @@
-import os
+from typing import Annotated, List, Optional
 
-from fastapi import APIRouter, HTTPException, Depends, Header, UploadFile
-from datetime import datetime
+from bson import ObjectId
+from fastapi import APIRouter, Depends, Form, Query, UploadFile
+
+from dtos.ResponseDTO import ResponseDTO
 from middlewares.JWTMiddleware import verificar_token
-from models.UsuarioModel import UsuarioCriarModel, UsuarioAtualizarModel
-from services.AuthService import AuthService
+from models.UsuarioModel import (
+    UsuarioAtualizarModel,
+    UsuarioCriarModel,
+    UsuarioModel,
+)
 from services.UsuarioService import UsuarioService
+from utils.IdUtil import para_object_id
 
 router = APIRouter()
-
 usuarioService = UsuarioService()
-authService = AuthService()
+
+UsuarioLogado = Annotated[ObjectId, Depends(verificar_token)]
 
 
-@router.post("/", response_description="Rota para criar um novo Usuário.")
-async def rota_criar_usuario(file: UploadFile, usuario: UsuarioCriarModel = Depends(UsuarioCriarModel)):
-    try:
-        caminho_foto = f'files/foto-{datetime.now().strftime("%H%M%S")}.png'
-
-        with open(caminho_foto, 'wb+') as arquivo:
-            arquivo.write(file.file.read())
-
-        resultado = await usuarioService.registrar_usuario(usuario, caminho_foto)
-
-        os.remove(caminho_foto)
-
-        if not resultado.status == 201:
-            raise HTTPException(status_code=resultado.status, detail=resultado.mensagem)
-
-        return resultado
-    except Exception as erro:
-        raise erro
-
-
-@router.get(
-    '/me',
-    response_description='Rota para buscar as informações do usuário logado.',
-    dependencies=[Depends(verificar_token)]
-    )
-async def buscar_info_usuario_logado(authorization: str = Header(default='')):
-    try:
-        usuario_logado = await authService.buscar_usuario_logado(authorization)
-
-        resultado = await usuarioService.buscar_usuario(usuario_logado.id)
-
-        if not resultado.status == 200:
-            raise HTTPException(status_code=resultado.status, detail=resultado.mensagem)
-
-        return resultado
-    except Exception as erro:
-        raise erro
-
-
-@router.get(
-    '/{usuario_id}',
-    response_description='Rota para buscar as informações do usuário logado.',
-    dependencies=[Depends(verificar_token)]
-    )
-async def buscar_info_usuario(usuario_id: str):
-    try:
-        resultado = await usuarioService.buscar_usuario(usuario_id)
-
-        if not resultado.status == 200:
-            raise HTTPException(status_code=resultado.status, detail=resultado.mensagem)
-
-        return resultado
-    except Exception as erro:
-        raise erro
-
-
-@router.get(
-    '/',
-    response_description='Rota para listar todos usuários.',
-    dependencies=[Depends(verificar_token)]
-    )
-async def listar_usuarios(filtro: str):
-    try:
-        resultado = await usuarioService.listar_usuarios(filtro)
-
-        if not resultado.status == 200:
-            raise HTTPException(status_code=resultado.status, detail=resultado.mensagem)
-
-        return resultado
-    except Exception as erro:
-        raise erro
-
-
-@router.put(
-    '/me',
-    response_description='Rota para atualizar as informações do usuário logado.',
-    dependencies=[Depends(verificar_token)]
-    )
-async def atualizar_usuario_logado(authorization: str = Header(default=''), usuario_atualizar: UsuarioAtualizarModel = Depends(UsuarioAtualizarModel)):
-    try:
-        usuario_logado = await authService.buscar_usuario_logado(authorization)
-
-        resultado = await usuarioService.atualizar_usuario_logado(usuario_logado.id, usuario_atualizar)
-
-        if not resultado.status == 200:
-            raise HTTPException(status_code=resultado.status, detail=resultado.mensagem)
-
-        return resultado
-    except Exception as erro:
-        raise erro
-
-
-@router.put(
-    '/seguir/{usuario_id}',
-    response_description="Rota para follow/unfollow em um usuário.",
-    dependencies=[Depends(verificar_token)]
+@router.post(
+    "/",
+    summary="Cadastrar usuário, com foto opcional",
+    status_code=201,
+    response_model=ResponseDTO[UsuarioModel],
 )
-async def follow_unfollow_usuario(usuario_id: str, authorization: str = Header(default='')):
-    usuario_logado = await authService.buscar_usuario_logado(authorization)
+async def rota_criar_usuario(
+    usuario: Annotated[UsuarioCriarModel, Form()],
+    file: Optional[UploadFile] = None,
+):
+    novo_usuario = await usuarioService.registrar_usuario(usuario, file)
+    return ResponseDTO(
+        mensagem="Usuário cadastrado com sucesso!", dados=novo_usuario, status=201
+    )
 
-    resultado = await usuarioService.follow_unfollow_usuario(usuario_logado.id, usuario_id)
 
-    if not resultado.status == 200:
-        raise HTTPException(status_code=resultado.status, detail=resultado.mensagem)
+@router.get(
+    "/me",
+    summary="Dados do usuário logado",
+    response_model=ResponseDTO[UsuarioModel],
+)
+async def buscar_info_usuario_logado(usuario_logado: UsuarioLogado):
+    usuario = await usuarioService.buscar_usuario(usuario_logado)
+    return ResponseDTO(mensagem="Usuário encontrado.", dados=usuario, status=200)
 
-    return resultado
+
+@router.put(
+    "/me",
+    summary="Atualizar o usuário logado",
+    response_model=ResponseDTO[UsuarioModel],
+)
+async def atualizar_usuario_logado(
+    usuario_logado: UsuarioLogado,
+    usuario_atualizar: Annotated[UsuarioAtualizarModel, Form()],
+    foto: Optional[UploadFile] = None,
+):
+    usuario = await usuarioService.atualizar_usuario_logado(
+        usuario_logado, usuario_atualizar, foto
+    )
+    return ResponseDTO(mensagem="Usuário atualizado.", dados=usuario, status=200)
+
+
+@router.put(
+    "/seguir/{usuario_id}",
+    summary="Seguir ou deixar de seguir um usuário",
+    response_model=ResponseDTO[str],
+)
+async def follow_unfollow_usuario(usuario_id: str, usuario_logado: UsuarioLogado):
+    await usuarioService.follow_unfollow_usuario(
+        usuario_logado, para_object_id(usuario_id, "Usuário")
+    )
+    return ResponseDTO(
+        mensagem="Requisição realizada com sucesso.", dados="", status=200
+    )
+
+
+@router.get(
+    "/{usuario_id}",
+    summary="Dados de um usuário",
+    response_model=ResponseDTO[UsuarioModel],
+    dependencies=[Depends(verificar_token)],
+)
+async def buscar_info_usuario(usuario_id: str):
+    usuario = await usuarioService.buscar_usuario(
+        para_object_id(usuario_id, "Usuário")
+    )
+    return ResponseDTO(mensagem="Usuário encontrado.", dados=usuario, status=200)
+
+
+@router.get(
+    "/",
+    summary="Buscar usuários por nome ou e-mail",
+    response_model=ResponseDTO[List[UsuarioModel]],
+    dependencies=[Depends(verificar_token)],
+)
+async def listar_usuarios(filtro: Annotated[str, Query(min_length=2, max_length=100)]):
+    usuarios = await usuarioService.listar_usuarios(filtro)
+    return ResponseDTO(
+        mensagem="Usuários listados com sucesso!", dados=usuarios, status=200
+    )

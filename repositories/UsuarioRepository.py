@@ -1,89 +1,74 @@
-from typing import List
+import re
+from typing import List, Optional
 
-import motor.motor_asyncio
 from bson import ObjectId
 
-from decouple import config
-from models.UsuarioModel import UsuarioCriarModel, UsuarioModel
-from utils.AuthUtil import AuthUtil
+from models.UsuarioModel import UsuarioModel
+from repositories.Database import database
 from utils.ConverterUtil import ConverterUtil
 
-MONGODB_URL = config("MONGODB_URL")
-
-cliente = motor.motor_asyncio.AsyncIOMotorClient(MONGODB_URL)
-
-database = cliente.devagram
-
 usuario_collection = database.get_collection("usuario")
-
 converterUtil = ConverterUtil()
-authUtil = AuthUtil()
+
+LIMITE_DE_RESULTADOS = 50
 
 
 class UsuarioRepository:
-    async def criar_usuario(self, usuario: UsuarioCriarModel) -> UsuarioModel:
-        usuario.senha = authUtil.gerar_senha_criptografada(usuario.senha)
+    async def criar_usuario(self, nome: str, email: str, senha_hash: str) -> UsuarioModel:
+        resultado = await usuario_collection.insert_one(
+            {
+                "nome": nome,
+                "email": email,
+                "senha": senha_hash,
+                "seguidores": [],
+                "seguindo": [],
+            }
+        )
+        return await self.buscar_usuario(resultado.inserted_id)
 
-        usuario_dict = {
-            "nome": usuario.nome,
-            "email": usuario.email,
-            "senha": usuario.senha,
-            "seguidores": [],
-            "seguindo": []
-        }
+    async def listar_usuarios(self, filtro: str) -> List[UsuarioModel]:
+        # Texto do usuário em $regex: sem escapar, vira injeção de expressão regular.
+        padrao = {"$regex": re.escape(filtro), "$options": "i"}
+        cursor = usuario_collection.find(
+            {"$or": [{"nome": padrao}, {"email": padrao}]}
+        ).limit(LIMITE_DE_RESULTADOS)
+        return [converterUtil.usuario_converter(usuario) async for usuario in cursor]
 
-        usuario_criado = await usuario_collection.insert_one(usuario_dict)
+    async def buscar_usuario(self, id: ObjectId) -> Optional[UsuarioModel]:
+        usuario = await usuario_collection.find_one({"_id": id})
+        return converterUtil.usuario_converter(usuario) if usuario else None
 
-        novo_usuario = await usuario_collection.find_one({ "_id": usuario_criado.inserted_id })
+    async def email_ja_cadastrado(self, email: str, exceto_id: Optional[ObjectId] = None) -> bool:
+        consulta = {"email": email}
+        if exceto_id:
+            consulta["_id"] = {"$ne": exceto_id}
+        return await usuario_collection.count_documents(consulta, limit=1) > 0
 
-        return converterUtil.usuario_converter(novo_usuario)
+    async def buscar_credenciais(self, email: str) -> Optional[dict]:
+        """Único ponto que devolve o hash da senha: uso exclusivo do login."""
+        usuario = await usuario_collection.find_one(
+            {"email": email}, {"_id": 1, "senha": 1}
+        )
+        return {"id": usuario["_id"], "senha": usuario["senha"]} if usuario else None
 
-    async def listar_usuarios(self, filtro) -> List[UsuarioModel]:
-        usuarios_encontrados = usuario_collection.find({
-            "$or": [
-                {"nome": {"$regex": filtro, "$options": 'i'}},
-                {"email": {"$regex": filtro, "$options": 'i'}}
-            ]
-        })
+    async def atualizar_usuario(self, id: ObjectId, dados_usuario: dict) -> Optional[UsuarioModel]:
+        if dados_usuario:
+            await usuario_collection.update_one({"_id": id}, {"$set": dados_usuario})
+        return await self.buscar_usuario(id)
 
-        usuarios = []
+    async def seguir(self, usuario_id: ObjectId, seguido_id: ObjectId):
+        # $addToSet é atômico: dois cliques simultâneos não duplicam o seguidor.
+        await usuario_collection.update_one(
+            {"_id": seguido_id}, {"$addToSet": {"seguidores": usuario_id}}
+        )
+        await usuario_collection.update_one(
+            {"_id": usuario_id}, {"$addToSet": {"seguindo": seguido_id}}
+        )
 
-        async for usuario in usuarios_encontrados:
-            usuarios.append(converterUtil.usuario_converter(usuario))
-
-        return usuarios
-
-    async def buscar_usuario(self, id: str) -> UsuarioModel:
-        usuario = await usuario_collection.find_one({"_id": ObjectId(id)})
-
-        if usuario:
-            return converterUtil.usuario_converter(usuario)
-
-    async def buscar_usuario_por_email(self, email: str) -> UsuarioModel:
-        usuario = await usuario_collection.find_one({"email": email})
-
-        if usuario:
-            return converterUtil.usuario_converter(usuario)
-
-    async def atualizar_usuario(self, id: str, dados_usuario: dict) -> UsuarioModel:
-        if "senha" in dados_usuario:
-            dados_usuario['senha'] = authUtil.gerar_senha_criptografada(dados_usuario['senha'])
-
-        usuario = await usuario_collection.find_one({"_id": ObjectId(id)})
-
-        if usuario:
-            await usuario_collection.update_one(
-                {"_id": ObjectId(id)}, {"$set": dados_usuario}
-            )
-
-            usuario_encontrado = await usuario_collection.find_one({
-                "_id": ObjectId(id)
-            })
-
-            return converterUtil.usuario_converter(usuario_encontrado)
-
-    async def deletar_usuario(self, id: str):
-        usuario = await usuario_collection.find_one({"_id": ObjectId(id)})
-
-        if usuario:
-            await usuario_collection.delete_one({"_id": ObjectId(id)})
+    async def deixar_de_seguir(self, usuario_id: ObjectId, seguido_id: ObjectId):
+        await usuario_collection.update_one(
+            {"_id": seguido_id}, {"$pull": {"seguidores": usuario_id}}
+        )
+        await usuario_collection.update_one(
+            {"_id": usuario_id}, {"$pull": {"seguindo": seguido_id}}
+        )

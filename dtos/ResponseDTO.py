@@ -1,5 +1,11 @@
-class ResponseDTO:
-    def __init__(self, mensagem, dados, status):
-        self.mensagem = mensagem
-        self.dados = dados
-        self.status = status
+from typing import Generic, TypeVar
+
+from pydantic import BaseModel
+
+T = TypeVar("T")
+
+
+class ResponseDTO(BaseModel, Generic[T]):
+    mensagem: str
+    dados: T
+    status: int

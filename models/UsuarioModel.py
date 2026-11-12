@@ -1,83 +1,39 @@
-from typing import List
+from typing import List, Optional
 
-from fastapi import Form, UploadFile
-from pydantic import BaseModel, Field, EmailStr
-from utils.DecoratorUtil import DecoratorUtil
+from pydantic import BaseModel, EmailStr, Field
 
-decoratorUtil = DecoratorUtil()
+SENHA_MINIMA = 8
 
 
 class UsuarioModel(BaseModel):
-    id: str = Field(...)
-    nome: str = Field(...)
-    email: EmailStr = Field(...)
-    senha: str = Field(...)
-    foto: str = Field(...)
-    seguidores: List
-    seguindo: List
-    total_seguidores: int
-    total_seguindo: int
-    postagens: List
-    total_postagem: int
-    token: str
+    """Usuário como sai da API. Não tem senha, de propósito."""
 
-    def __getitem__(self, item):
-        return getattr(self, item)
-
-    class Config:
-        json_schema_extra = {
-            "usuario": {
-                "nome": "string",
-                "email": "string",
-                "senha": "string",
-                "foto": "string",
-                "seguidores": "List",
-                "seguindo": "List"
-            }
-        }
+    id: str
+    nome: str
+    email: EmailStr
+    foto: str = ""
+    seguidores: List[str] = []
+    seguindo: List[str] = []
+    total_seguidores: int = 0
+    total_seguindo: int = 0
+    postagens: List = []
+    total_postagem: int = 0
+    token: str = ""
 
 
-@decoratorUtil.form_body
 class UsuarioCriarModel(BaseModel):
-    nome: str = Field(max_length=50, min_length=3)
-    email: EmailStr = Field(...)
-    senha: str = Field(...)
-
-    class Config:
-        json_schema_extra = {
-            "usuario": {
-                "nome": "Fulano de tal",
-                "email": "fulano@gmail.com",
-                "senha": "SeNha123!",
-            }
-        }
+    nome: str = Field(min_length=3, max_length=50)
+    email: EmailStr
+    senha: str = Field(min_length=SENHA_MINIMA, max_length=128)
 
 
 class UsuarioLoginModel(BaseModel):
-    email: EmailStr = Field(...)
-    senha: str = Field(...)
-
-    class Config:
-        json_schema_extra = {
-            "usuario": {
-                "email": "fulano@gmail.com",
-                "senha": "SeNha123!",
-            }
-        }
+    email: EmailStr
+    # Sem tamanho mínimo: contas antigas têm senhas mais curtas.
+    senha: str = Field(min_length=1, max_length=128)
 
 
-@decoratorUtil.form_body
 class UsuarioAtualizarModel(BaseModel):
-    nome: str = Field(...)
-    email: EmailStr = Field(...)
-    senha: str = Field(...)
-    foto: UploadFile = Field(...)
-
-    class Config:
-        json_schema_extra = {
-            "usuario": {
-                "nome": "Fulano de tal",
-                "email": "fulano@gmail.com",
-                "senha": "SeNha123!",
-            }
-        }
+    nome: Optional[str] = Field(default=None, min_length=3, max_length=50)
+    email: Optional[EmailStr] = None
+    senha: Optional[str] = Field(default=None, min_length=SENHA_MINIMA, max_length=128)
